@@ -4,11 +4,11 @@ import (
 	"bytes"
 	"encoding/base64"
 	"fmt"
+	"github.com/eolso/librespot-golang/Spotify"
+	"github.com/eolso/librespot-golang/librespot/connection"
+	"github.com/eolso/librespot-golang/librespot/discovery"
+	"github.com/eolso/librespot-golang/librespot/utils"
 	"github.com/golang/protobuf/proto"
-	"github.com/librespot-org/librespot-golang/Spotify"
-	"github.com/librespot-org/librespot-golang/librespot/connection"
-	"github.com/librespot-org/librespot-golang/librespot/discovery"
-	"github.com/librespot-org/librespot-golang/librespot/utils"
 	"log"
 )
 

@@ -3,7 +3,7 @@ package crypto
 import (
 	"bytes"
 	"encoding/binary"
-	"github.com/librespot-org/librespot-golang/librespot/connection"
+	"github.com/eolso/librespot-golang/librespot/connection"
 	"io"
 	"log"
 	"sync"

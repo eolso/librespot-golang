@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
-	"github.com/librespot-org/librespot-golang/Spotify"
-	"github.com/librespot-org/librespot-golang/librespot/connection"
-	"github.com/librespot-org/librespot-golang/librespot/mercury"
+	"github.com/eolso/librespot-golang/Spotify"
+	"github.com/eolso/librespot-golang/librespot/connection"
+	"github.com/eolso/librespot-golang/librespot/mercury"
 	"log"
 	"sync"
 )

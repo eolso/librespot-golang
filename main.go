@@ -11,10 +11,10 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/librespot-org/librespot-golang/Spotify"
-	"github.com/librespot-org/librespot-golang/librespot"
-	"github.com/librespot-org/librespot-golang/librespot/core"
-	"github.com/librespot-org/librespot-golang/librespot/utils"
+	"github.com/eolso/librespot-golang/Spotify"
+	"github.com/eolso/librespot-golang/librespot"
+	"github.com/eolso/librespot-golang/librespot/core"
+	"github.com/eolso/librespot-golang/librespot/utils"
 	"github.com/xlab/portaudio-go/portaudio"
 	"github.com/xlab/vorbis-go/decoder"
 )

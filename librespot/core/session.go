@@ -8,14 +8,14 @@ import (
 	"net"
 	"time"
 
+	"github.com/eolso/librespot-golang/Spotify"
+	"github.com/eolso/librespot-golang/librespot/connection"
+	"github.com/eolso/librespot-golang/librespot/crypto"
+	"github.com/eolso/librespot-golang/librespot/discovery"
+	"github.com/eolso/librespot-golang/librespot/mercury"
+	"github.com/eolso/librespot-golang/librespot/player"
+	"github.com/eolso/librespot-golang/librespot/utils"
 	"github.com/golang/protobuf/proto"
-	"github.com/librespot-org/librespot-golang/Spotify"
-	"github.com/librespot-org/librespot-golang/librespot/connection"
-	"github.com/librespot-org/librespot-golang/librespot/crypto"
-	"github.com/librespot-org/librespot-golang/librespot/discovery"
-	"github.com/librespot-org/librespot-golang/librespot/mercury"
-	"github.com/librespot-org/librespot-golang/librespot/player"
-	"github.com/librespot-org/librespot-golang/librespot/utils"
 )
 
 // Session represents an active Spotify connection

@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"net/url"
 
+	"github.com/eolso/librespot-golang/Spotify"
+	"github.com/eolso/librespot-golang/librespot/metadata"
 	"github.com/golang/protobuf/proto"
-	"github.com/librespot-org/librespot-golang/Spotify"
-	"github.com/librespot-org/librespot-golang/librespot/metadata"
 )
 
 func (m *Client) mercuryGet(url string) []byte {
@@ -33,7 +33,7 @@ func (m *Client) mercuryGetJson(url string, result interface{}) (err error) {
 
 func (m *Client) mercuryGetProto(url string, result proto.Message) (err error) {
 	data := m.mercuryGet(url)
-	// ioutil.WriteFile("/tmp/proto.blob", data, 0644)
+	//ioutil.WriteFile("/tmp/proto.blob", data, 0644)
 	err = proto.Unmarshal(data, result)
 	return
 }
@@ -47,7 +47,7 @@ func (m *Client) GetRootPlaylist(username string) (*Spotify.SelectedListContent,
 }
 
 func (m *Client) GetPlaylist(id string) (*Spotify.SelectedListContent, error) {
-	uri := fmt.Sprintf("hm://playlist/%s", id)
+	uri := fmt.Sprintf("hm://playlist/v2/playlist/%s", id)
 
 	result := &Spotify.SelectedListContent{}
 	err := m.mercuryGetProto(uri, result)
