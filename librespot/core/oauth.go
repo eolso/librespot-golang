@@ -63,7 +63,7 @@ func getOAuthToken(clientId string, clientSecret string, callback string) OAuth 
 
 	http.HandleFunc("/callback", func(w http.ResponseWriter, r *http.Request) {
 		params := r.URL.Query()
-		auth, err := GetOauthAccessToken(params.Get("code"), "http://localhost:8888/callback", clientId, clientSecret)
+		auth, err := GetOauthAccessToken(params.Get("code"), callback, clientId, clientSecret)
 		if err != nil {
 			fmt.Fprintf(w, "Error getting token %q", err)
 			return
