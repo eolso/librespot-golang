@@ -50,14 +50,14 @@ func GetOauthAccessToken(code string, redirectUri string, clientId string, clien
 	return &auth, nil
 }
 
-func getOAuthToken(clientId string, clientSecret string) OAuth {
+func getOAuthToken(clientId string, clientSecret string, callback string) OAuth {
 	ch := make(chan OAuth)
 
 	fmt.Println("go to this url")
 	urlPath := "https://accounts.spotify.com/authorize?" +
 		"client_id=" + clientId +
 		"&response_type=code" +
-		"&redirect_uri=http://localhost:8888/callback" +
+		"&redirect_uri=" + callback +
 		"&scope=streaming"
 	fmt.Println(urlPath)
 
