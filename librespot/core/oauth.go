@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"time"
 )
 
 type OAuth struct {
@@ -76,8 +77,10 @@ func StartLocalOAuthServer(clientId string, clientSecret string, callback string
 		}
 		fmt.Fprintf(w, "Got token, logging in.")
 		ch <- *auth
-		_ = server.Shutdown(context.Background())
 		close(ch)
+
+		time.Sleep(time.Second * 10)
+		_ = server.Shutdown(context.Background())
 	})
 
 	go func() {
