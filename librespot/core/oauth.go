@@ -8,7 +8,6 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"time"
 )
 
 type OAuth struct {
@@ -53,7 +52,8 @@ func GetOauthAccessToken(code string, redirectUri string, clientId string, clien
 }
 
 func StartLocalOAuthServer(clientId string, clientSecret string, callback string) (string, chan OAuth) {
-	ch := make(chan OAuth)
+	oauthChan := make(chan OAuth)
+	shutDownChan := make(chan bool)
 
 	urlPath := "https://accounts.spotify.com/authorize?" +
 		"client_id=" + clientId +
@@ -76,18 +76,21 @@ func StartLocalOAuthServer(clientId string, clientSecret string, callback string
 			return
 		}
 		fmt.Fprintf(w, "Got token, logging in.")
-		ch <- *auth
-		close(ch)
-
-		time.Sleep(time.Second * 10)
-		_ = server.Shutdown(context.Background())
+		oauthChan <- *auth
+		shutDownChan <- true
+		close(oauthChan)
 	})
 
 	go func() {
 		_ = server.ListenAndServe()
 	}()
 
-	return urlPath, ch
+	go func() {
+		<-shutDownChan
+		_ = server.Shutdown(context.Background())
+	}()
+
+	return urlPath, oauthChan
 }
 
 func getOAuthToken(clientId string, clientSecret string, callback string) OAuth {
