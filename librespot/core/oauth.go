@@ -52,7 +52,7 @@ func GetOauthAccessToken(code string, redirectUri string, clientId string, clien
 }
 
 func StartLocalOAuthServer(clientId string, clientSecret string, callback string) (string, chan OAuth) {
-	ch := make(chan OAuth, 1)
+	ch := make(chan OAuth)
 
 	urlPath := "https://accounts.spotify.com/authorize?" +
 		"client_id=" + clientId +
