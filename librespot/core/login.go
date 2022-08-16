@@ -90,10 +90,10 @@ func LoginOAuth(deviceName string, clientId string, clientSecret string, callbac
 		callback = "http://localhost:8888/callback"
 	}
 	token := getOAuthToken(clientId, clientSecret, callback)
-	return loginOAuthToken(token.AccessToken, deviceName)
+	return LoginOAuthToken(token.AccessToken, deviceName)
 }
 
-func loginOAuthToken(accessToken string, deviceName string) (*Session, error) {
+func LoginOAuthToken(accessToken string, deviceName string) (*Session, error) {
 	s, err := setupSession()
 	if err != nil {
 		return s, err

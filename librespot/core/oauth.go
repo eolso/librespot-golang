@@ -1,6 +1,7 @@
 package core
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -48,6 +49,42 @@ func GetOauthAccessToken(code string, redirectUri string, clientId string, clien
 		return nil, fmt.Errorf("error getting token %v", auth.Error)
 	}
 	return &auth, nil
+}
+
+func StartLocalOAuthServer(clientId string, clientSecret string, callback string) (string, chan OAuth) {
+	ch := make(chan OAuth, 1)
+
+	urlPath := "https://accounts.spotify.com/authorize?" +
+		"client_id=" + clientId +
+		"&response_type=code" +
+		"&redirect_uri=" + callback +
+		"&scope=streaming"
+
+	router := http.NewServeMux()
+	server := &http.Server{
+		// TODO pull port from callback
+		Addr:    ":8888",
+		Handler: router,
+	}
+
+	router.HandleFunc("/callback", func(w http.ResponseWriter, r *http.Request) {
+		params := r.URL.Query()
+		auth, err := GetOauthAccessToken(params.Get("code"), callback, clientId, clientSecret)
+		if err != nil {
+			fmt.Fprintf(w, "Error getting token: %q", err)
+			return
+		}
+		fmt.Fprintf(w, "Got token, logging in.")
+		ch <- *auth
+		_ = server.Shutdown(context.Background())
+		close(ch)
+	})
+
+	go func() {
+		_ = server.ListenAndServe()
+	}()
+
+	return urlPath, ch
 }
 
 func getOAuthToken(clientId string, clientSecret string, callback string) OAuth {
