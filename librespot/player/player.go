@@ -7,6 +7,7 @@ import (
 	"github.com/eolso/librespot-golang/Spotify"
 	"github.com/eolso/librespot-golang/librespot/connection"
 	"github.com/eolso/librespot-golang/librespot/mercury"
+	"github.com/eolso/threadsafe"
 	"log"
 	"sync"
 )
@@ -19,7 +20,7 @@ type Player struct {
 
 	chanLock    sync.Mutex
 	seqChanLock sync.Mutex
-	channels    map[uint16]*Channel
+	channels    *threadsafe.Map[uint16, *Channel]
 	seqChans    sync.Map
 	nextChan    uint16
 }
@@ -28,7 +29,7 @@ func CreatePlayer(conn connection.PacketStream, client *mercury.Client) *Player 
 	return &Player{
 		stream:   conn,
 		mercury:  client,
-		channels: map[uint16]*Channel{},
+		channels: threadsafe.NewMap[uint16, *Channel](),
 		seqChans: sync.Map{},
 		chanLock: sync.Mutex{},
 		nextChan: 0,
@@ -78,7 +79,7 @@ func (p *Player) AllocateChannel() *Channel {
 	channel := NewChannel(p.nextChan, p.releaseChannel)
 	p.nextChan++
 
-	p.channels[channel.num] = channel
+	p.channels.Set(channel.num, channel)
 	p.chanLock.Unlock()
 
 	return channel
@@ -111,7 +112,7 @@ func (p *Player) HandleCmd(cmd byte, data []byte) {
 
 		// fmt.Printf("[player] Data on channel %d: %d bytes\n", channel, len(data[2:]))
 
-		if val, ok := p.channels[channel]; ok {
+		if val, ok := p.channels.Get(channel); ok {
 			val.handlePacket(data[2:])
 		} else {
 			fmt.Printf("Unknown channel!\n")
@@ -121,7 +122,7 @@ func (p *Player) HandleCmd(cmd byte, data []byte) {
 
 func (p *Player) releaseChannel(channel *Channel) {
 	p.chanLock.Lock()
-	delete(p.channels, channel.num)
+	p.channels.Delete(channel.num)
 	p.chanLock.Unlock()
 	// fmt.Printf("[player] Released channel %d\n", channel.num)
 }
