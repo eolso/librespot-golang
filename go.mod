@@ -4,6 +4,7 @@ go 1.19
 
 require (
 	github.com/badfortrains/mdns v0.0.0-20160325001438-447166384f51
+	github.com/eolso/threadsafe v0.0.0-20220829013830-ed75b700e204
 	github.com/golang/protobuf v1.5.0
 	github.com/stretchr/testify v1.8.0
 	github.com/xlab/portaudio-go v0.0.0-20170905165025-132d041879db
