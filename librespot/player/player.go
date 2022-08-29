@@ -17,12 +17,9 @@ type Player struct {
 	mercury  *mercury.Client
 	seq      uint32
 	audioKey []byte
-
-	chanLock    sync.Mutex
-	seqChanLock sync.Mutex
-	channels    *threadsafe.Map[uint16, *Channel]
-	seqChans    sync.Map
-	nextChan    uint16
+	channels *threadsafe.Map[uint16, *Channel]
+	seqChans sync.Map
+	nextChan uint16
 }
 
 func CreatePlayer(conn connection.PacketStream, client *mercury.Client) *Player {
@@ -31,7 +28,7 @@ func CreatePlayer(conn connection.PacketStream, client *mercury.Client) *Player 
 		mercury:  client,
 		channels: threadsafe.NewMap[uint16, *Channel](),
 		seqChans: sync.Map{},
-		chanLock: sync.Mutex{},
+		//chanLock: sync.Mutex{},
 		nextChan: 0,
 	}
 }
@@ -75,12 +72,10 @@ func (p *Player) loadTrackKey(trackId []byte, fileId []byte) ([]byte, error) {
 }
 
 func (p *Player) AllocateChannel() *Channel {
-	p.chanLock.Lock()
 	channel := NewChannel(p.nextChan, p.releaseChannel)
 	p.nextChan++
 
 	p.channels.Set(channel.num, channel)
-	p.chanLock.Unlock()
 
 	return channel
 }
@@ -121,8 +116,6 @@ func (p *Player) HandleCmd(cmd byte, data []byte) {
 }
 
 func (p *Player) releaseChannel(channel *Channel) {
-	p.chanLock.Lock()
 	p.channels.Delete(channel.num)
-	p.chanLock.Unlock()
 	// fmt.Printf("[player] Released channel %d\n", channel.num)
 }
