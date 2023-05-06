@@ -1,14 +1,12 @@
 module github.com/eolso/librespot-golang
 
-go 1.19
+go 1.20
 
 require (
 	github.com/badfortrains/mdns v0.0.0-20160325001438-447166384f51
 	github.com/eolso/threadsafe v0.0.0-20220829013830-ed75b700e204
 	github.com/golang/protobuf v1.5.0
 	github.com/stretchr/testify v1.8.0
-	github.com/xlab/portaudio-go v0.0.0-20170905165025-132d041879db
-	github.com/xlab/vorbis-go v0.0.0-20210911202351-b5b85f1ec645
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa
 	google.golang.org/protobuf v1.28.1
 )
