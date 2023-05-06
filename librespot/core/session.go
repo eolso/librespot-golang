@@ -93,21 +93,21 @@ func (s *Session) startConnection() error {
 	helloMessage := makeHelloMessage(s.keys.PubKey(), s.keys.ClientNonce())
 	initClientPacket, err := conn.SendPrefixPacket([]byte{0, 4}, helloMessage)
 	if err != nil {
-		log.Fatal("Error writing client hello", err)
+		log.Print("Error writing client hello", err)
 		return err
 	}
 
 	// Wait and read the hello reply
 	initServerPacket, err := conn.RecvPacket()
 	if err != nil {
-		log.Fatal("Error receving packet for hello: ", err)
+		log.Print("Error receving packet for hello: ", err)
 		return err
 	}
 
 	response := Spotify.APResponseMessage{}
 	err = proto.Unmarshal(initServerPacket[4:], &response)
 	if err != nil {
-		log.Fatal("Failed to unmarshal server hello", err)
+		log.Print("Failed to unmarshal server hello", err)
 		return err
 	}
 
@@ -126,13 +126,13 @@ func (s *Session) startConnection() error {
 
 	plainResponseMessage, err := proto.Marshal(plainResponse)
 	if err != nil {
-		log.Fatal("marshaling error: ", err)
+		log.Print("marshaling error: ", err)
 		return err
 	}
 
 	_, err = conn.SendPrefixPacket([]byte{}, plainResponseMessage)
 	if err != nil {
-		log.Fatal("error writing client plain response ", err)
+		log.Print("error writing client plain response ", err)
 		return err
 	}
 
@@ -221,11 +221,11 @@ func (s *Session) doReconnect() error {
 
 func (s *Session) planReconnect() {
 	go func() {
-		time.Sleep(1 * time.Second)
-
-		if err := s.doReconnect(); err != nil {
-			// Try to reconnect again in a second
-			s.planReconnect()
+		for {
+			if err := s.doReconnect(); err == nil {
+				break
+			}
+			time.Sleep(1 * time.Second)
 		}
 	}()
 }
@@ -234,13 +234,12 @@ func (s *Session) runPollLoop() {
 	for {
 		cmd, data, err := s.stream.RecvPacket()
 		if err != nil {
-			log.Println("Error during RecvPacket: ", err)
-
 			if err == io.EOF {
 				// We've been disconnected, reconnect
 				s.planReconnect()
 				break
 			}
+			log.Println("Error during RecvPacket: ", err)
 		} else {
 			s.handle(cmd, data)
 		}
@@ -255,7 +254,7 @@ func (s *Session) handle(cmd uint8, data []byte) {
 		// Ping
 		err := s.stream.SendPacket(connection.PacketPong, data)
 		if err != nil {
-			log.Fatal("Error handling PacketPing", err)
+			log.Print("Error handling PacketPing", err)
 		}
 
 	case cmd == connection.PacketPongAck:
@@ -274,7 +273,7 @@ func (s *Session) handle(cmd uint8, data []byte) {
 		// Mercury responses
 		err := s.mercury.Handle(cmd, bytes.NewReader(data))
 		if err != nil {
-			log.Fatal("Handle 0xbx", err)
+			log.Print("Handle 0xbx", err)
 		}
 
 	case cmd == connection.PacketSecretBlock:
@@ -301,7 +300,7 @@ func (s *Session) handle(cmd uint8, data []byte) {
 func (s *Session) poll() {
 	cmd, data, err := s.stream.RecvPacket()
 	if err != nil {
-		log.Fatal("poll error", err)
+		log.Print("poll error", err)
 	}
 	s.handle(cmd, data)
 }
@@ -350,7 +349,7 @@ func makeHelloMessage(publicKey []byte, nonce []byte) []byte {
 
 	packetData, err := proto.Marshal(hello)
 	if err != nil {
-		log.Fatal("login marshaling error: ", err)
+		log.Print("login marshaling error: ", err)
 	}
 
 	return packetData

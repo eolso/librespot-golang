@@ -11,6 +11,7 @@ import (
 	"io"
 	"math"
 	"sync"
+	"time"
 )
 
 const kChunkSize = 32768 // In number of words (so actual byte size is kChunkSize*4, aka. kChunkByteSize)
@@ -41,6 +42,7 @@ type AudioFile struct {
 	cursor         int
 	chunks         map[int]bool
 	chunksLoading  bool
+	closed         bool
 }
 
 func newAudioFile(file *Spotify.AudioFile, player *Player) *AudioFile {
@@ -58,6 +60,7 @@ func newAudioFileWithIdAndFormat(fileId []byte, format Spotify.AudioFile_Format,
 		chunks:        map[int]bool{},
 		chunkLock:     sync.RWMutex{},
 		chunksLoading: false,
+		closed:        false,
 	}
 }
 
@@ -70,6 +73,10 @@ func (a *AudioFile) Size() uint32 {
 // zero bytes when we are waiting for audio data from the Spotify servers, so make sure to wait for the io.EOF error
 // before stopping playback.
 func (a *AudioFile) Read(buf []byte) (int, error) {
+	if a.closed {
+		return 0, io.EOF
+	}
+
 	length := len(buf)
 	outBufCursor := 0
 	totalWritten := 0
@@ -101,6 +108,7 @@ func (a *AudioFile) Read(buf []byte) (int, error) {
 			break
 		} else if !a.hasChunk(chunkIdx) {
 			// A chunk we are looking to read is unavailable, request it so that we can return it on the next Read call
+			time.Sleep(1 * time.Millisecond)
 			a.requestChunk(chunkIdx)
 			// fmt.Printf("[audiofile] Doesn't have chunk %d yet, queuing\n", chunkIdx)
 			break
@@ -157,6 +165,11 @@ func (a *AudioFile) Seek(offset int64, whence int) (int64, error) {
 	}
 
 	return int64(a.cursor - a.headerOffset()), nil
+}
+
+func (a *AudioFile) Close() error {
+	a.closed = true
+	return nil
 }
 
 func (a *AudioFile) headerOffset() int {
@@ -282,6 +295,10 @@ func (a *AudioFile) loadChunk(chunkIndex int) error {
 }
 
 func (a *AudioFile) loadNextChunk() {
+	if a.closed {
+		return
+	}
+
 	a.chunkLock.Lock()
 
 	if a.chunksLoading {

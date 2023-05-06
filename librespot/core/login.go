@@ -149,12 +149,12 @@ func (s *Session) handleLogin() (*Spotify.APWelcome, error) {
 		return nil, fmt.Errorf("authentication failed")
 	} else if cmd == connection.PacketAPWelcome {
 		welcome := &Spotify.APWelcome{}
-		err := proto.Unmarshal(data, welcome)
+		err = proto.Unmarshal(data, welcome)
 		if err != nil {
 			return nil, fmt.Errorf("authentication failed: %v", err)
 		}
 		fmt.Println("Authentication succeeded: Welcome,", welcome.GetCanonicalUsername())
-		fmt.Println("Blob type:", welcome.GetReusableAuthCredentialsType())
+		//fmt.Println("Blob type:", welcome.GetReusableAuthCredentialsType())
 		return welcome, nil
 	} else {
 		return nil, fmt.Errorf("authentication failed: unexpected cmd %v", cmd)
